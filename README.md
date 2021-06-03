@@ -1,5 +1,9 @@
 # XOXO Facebook Instant client
-This is a Tic Tac Toe game made with [Defold for Facebook Instant Games](https://defold.com/extension-fbinstant/). [Play the game here](https://fb.gg/play/477264310241155).
+This is a Tic Tac Toe game made with [Defold for Facebook Instant Games](https://defold.com/extension-fbinstant/).
+
+![](screenshot.png)
+
+[Play the game here](https://fb.gg/play/477264310241155).
 
 ## Game client
 This project uses the generic Tic Tac Toe example game which can be found [in this repository](https://www.github.com/defold/game-xoxo).
