@@ -6,10 +6,13 @@ function init(self)
 	-- the game client is ready
 	-- we can proceed with setup of fbinstant
 	xoxo.on_connect(function()
-		xoxo_fbinstant.start(function(ok, err)
-			if ok then
-				msg.post(".", "acquire_input_focus")
+		xoxo_fbinstant.initialize(function(ok, err)
+			if not ok then
+				print(err)
+				return
 			end
+			msg.post(".", "acquire_input_focus")
+			xoxo_fbinstant.start()
 		end)
 	end)
 end

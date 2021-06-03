@@ -78,7 +78,7 @@ local function handle_context(context_id, context_type, callback)
 			add_player(context.me.id, context.me.name, context.me.photo)
 			add_player(PENDING_PLAYER_ID, "Friend", "")
 		end
-		callback()
+		callback(true)
 	end)
 end
 
@@ -155,56 +155,63 @@ local function fbinstant_login(callback)
 	end)
 end
 
-function M.start(callback)
-	fbinstant_login(function(ok, message)
-		if not ok then
-			log(message)
-			callback(false)
+function M.initialize(callback)
+	fbinstant.initialize(function(self, success)
+		if not success then
+			callback(false, "ERROR! Unable to initialize FBInstant")
 			return
 		end
-		log("fbinstant login ok")
 
-		-- This will get called by the game when the player pressed the
-		-- Join button in the menu.
-		xoxo.on_join_match(function(callback)
-			log("xoxo.on_join_match")
-			find_opponent_and_join_match(callback)
-		end)
-
-		-- Called by the game when the player pressed the Leave button
-		-- when a game is finished (instead of waiting for the next match).
-		xoxo.on_leave_match(function()
-			log("xoxo.on_leave_match")
-			fbinstant.quit()
-		end)
-
-		-- Called by the game when the player is trying to make a move.
-		xoxo.on_send_player_move(function(row, col)
-			log("xoxo.on_send_player_move")
-			send_player_move(row, col)
-		end)
-
-
-		-- get the current context we're in
-		-- if the context is THREAD it means we are in a messenger conversation
-		-- in this case we handle the context and flag to the game that we are
-		-- reconnecting (into an existing or new game with an opponent)
-		-- if we are in another kind of context we flag to the game that we are
-		-- connected and proceed to let the player chose an opponent
-		local context_id, context_type = fbinstant.get_context()
-		if context_id and context_type == fbinstant.CONTEXT_THREAD then
-			handle_context(context_id, context_type, function()
-				timer.delay(1, true, function()
-					send_match_data()
-				end)
-				xoxo.show_game()
-				callback(true)
-			end)
-		else			
-			xoxo.show_menu()
+		fbinstant.start_game(function(self, success)
+			if not success then
+				callback(false, "ERROR! Unable to start game")
+				return
+			end
 			callback(true)
-		end
+		end)
 	end)
+end
+	
+function M.start()
+	log("fbinstant login ok")
+
+	-- This will get called by the game when the player pressed the
+	-- Join button in the menu.
+	xoxo.on_join_match(function(callback)
+		log("xoxo.on_join_match")
+		find_opponent_and_join_match(callback)
+	end)
+
+	-- Called by the game when the player pressed the Leave button
+	-- when a game is finished (instead of waiting for the next match).
+	xoxo.on_leave_match(function()
+		log("xoxo.on_leave_match")
+		fbinstant.quit()
+	end)
+
+	-- Called by the game when the player is trying to make a move.
+	xoxo.on_send_player_move(function(row, col)
+		log("xoxo.on_send_player_move")
+		send_player_move(row, col)
+	end)
+
+
+	timer.delay(1, true, send_match_data)
+
+	-- get the current context we're in
+	-- if the context is THREAD it means we are in a messenger conversation
+	-- in this case we handle the context and flag to the game that we are
+	-- reconnecting (into an existing or new game with an opponent)
+	-- if we are in another kind of context we flag to the game that we are
+	-- connected and proceed to let the player chose an opponent
+	local context_id, context_type = fbinstant.get_context()
+	if context_id and context_type == fbinstant.CONTEXT_THREAD then
+		handle_context(context_id, context_type, function()
+			xoxo.show_game()
+		end)
+	else			
+		xoxo.show_menu()
+	end
 end
 
 
