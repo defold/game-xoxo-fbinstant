@@ -83,8 +83,8 @@ local function handle_context(context_id, context_type, callback)
 end
 
 -- find an opponent and set up the match
-local function find_opponent_and_join_match(match_callback)
-	log("find_opponent_and_join_match")
+local function find_opponent(match_callback)
+	log("find_opponent")
 	local options = json.encode({
 		minSize = 2,
 		maxSize = 2
@@ -179,7 +179,7 @@ function M.start()
 	-- Join button in the menu.
 	xoxo.on_join_match(function(callback)
 		log("xoxo.on_join_match")
-		find_opponent_and_join_match(callback)
+		find_opponent(callback)
 	end)
 
 	-- Called by the game when the player pressed the Leave button
