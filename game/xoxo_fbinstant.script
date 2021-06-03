@@ -1,0 +1,14 @@
+require "game.mock_fbinstant"
+local xoxo = require "xoxo.xoxo"
+local xoxo_fbinstant = require "game.xoxo_fbinstant"
+
+function init(self)
+	-- login and set up fbinstant
+	xoxo.on_connect(function()
+		xoxo_fbinstant.login(function(ok, err)
+			if ok then
+				msg.post(".", "acquire_input_focus")
+			end
+		end)
+	end)
+end

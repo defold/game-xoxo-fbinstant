@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /main/main.collectionc
+main_collection = /game/game.collectionc
 
 [script]
 shared_state = 1
@@ -35,4 +35,7 @@ game_binding = /xoxo/input/game.input_bindingc
 show_fullscreen_button = 0
 show_made_with_defold = 0
 scale_mode = fit
+
+[native_extension]
+app_manifest = /xoxo.appmanifest
 

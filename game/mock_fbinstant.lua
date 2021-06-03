@@ -1,5 +1,3 @@
-local xoxo = require "xoxo.xoxo"
-local xoxo_fbinstant = require "main.xoxo_fbinstant"
 local mock = require "fbinstant.utils.mock"
 local game = require "xoxo.game.game"
 
@@ -16,7 +14,7 @@ if fbinstant.mock then
 		photo = "http://i.pravatar.cc/200?u=124",
 		locale = "en_US",
 	}
-	
+
 	-- this is the logged in player
 	fbinstant.PLAYER = ME
 
@@ -37,16 +35,4 @@ if fbinstant.mock then
 	game.add_player(g, ME)
 	game.add_player(g, PLAYER2)
 	fbinstant.ENTRY_POINT_DATA = g
-end
-
-
-function init(self)
-	-- login and set up fbinstant
-	xoxo.on_connect(function()
-		xoxo_fbinstant.login(function(ok, err)
-			if ok then
-				msg.post(".", "acquire_input_focus")
-			end
-		end)
-	end)
 end
