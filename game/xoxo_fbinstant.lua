@@ -155,7 +155,7 @@ local function fbinstant_login(callback)
 	end)
 end
 
-function M.login(callback)
+function M.start(callback)
 	fbinstant_login(function(ok, message)
 		if not ok then
 			log(message)
