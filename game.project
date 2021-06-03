@@ -1,0 +1,37 @@
+[bootstrap]
+main_collection = /main/main.collectionc
+
+[script]
+shared_state = 1
+
+[display]
+width = 640
+height = 1136
+
+[android]
+input_method = HiddenInputField
+package = com.defold.game.xoxo.fbinstant
+
+[project]
+title = XOXO FBInstant
+version = 1.2.0
+bundle_resources = bundle_resources
+custom_resources = custom_resources
+dependencies#0 = https://github.com/defold/game-xoxo/archive/2.1.1.zip
+dependencies#1 = https://github.com/britzl/gooey/archive/9.1.1.zip
+dependencies#2 = https://github.com/britzl/monarch/archive/3.2.2.zip
+dependencies#3 = https://github.com/defold/extension-fbinstant/archive/refs/tags/7.0.3.zip
+
+[osx]
+bundle_identifier = com.defold.game.xoxo.fbinstant
+
+[ios]
+bundle_identifier = com.defold.game.xoxo.fbinstant
+
+[input]
+game_binding = /xoxo/input/game.input_bindingc
+
+[html5]
+show_fullscreen_button = 0
+show_made_with_defold = 0
+scale_mode = fit

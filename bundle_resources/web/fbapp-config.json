@@ -1,0 +1,16 @@
+{
+  "instant_games": {
+    "custom_update_templates": {
+      "move": {
+        "example": "X made a move!"
+      }
+    },
+    "orientation": "PORTRAIT",
+    "override_web_orientation": "PORTRAIT",
+    "navigation_menu_version": "NAV_FLOATING",
+    "match_player_config": {
+      "min_context_size": 2,
+      "max_context_size": 2
+    }
+  }
+}
