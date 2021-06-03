@@ -11,7 +11,6 @@ local PENDING_PLAYER_ID = -1000
 local context = {
 	id = nil,
 	type = nil,
-	players = nil,	-- from fbinstant.get_players()
 	me = nil,		-- from fbinstant.get_player()
 	game = nil,		-- from game.new_game()
 }
@@ -41,7 +40,7 @@ end
 
 
 local function handle_context(context_id, context_type, callback)
-	log("on_context", context_id, context_type)
+	log("handle_context", context_id, context_type)
 	context.id = context_id
 	context.type = context_type
 	context.me = fbinstant.get_player()
@@ -70,15 +69,17 @@ local function handle_context(context_id, context_type, callback)
 					end
 				end
 			end
+			-- if the game we loaded was a win or draw we set up for a rematch
+			if context.game.winner or context.game.draw then
+				context.game = game.rematch(context.game)
+			end
 		else
 			context.game = game.new_game()
 			add_player(context.me.id, context.me.name, context.me.photo)
 			add_player(PENDING_PLAYER_ID, "Friend", "")
 		end
+		callback()
 	end)
-
-
-	callback(true)
 end
 
 -- find an opponent and set up the match
@@ -104,20 +105,35 @@ local function send_player_move(row, col)
 	game.player_move(context.game, row, col)
 
 	-- create and send payload
-	local me = fbinstant.get_player()
+	local text = context.me.name .. " made a move!"
+	local cta = "Make your move!"
+	local template = "move"
+	if context.game.draw then
+		text = "The game was a draw!"
+		cta = "Play again!"
+		template = "draw"
+	elseif context.game.winner then
+		text = context.me.name .. " won the game!"
+		cta = "Play again!"
+		template = "win"
+	end
+
 	local payload = json.encode({
 		action = "CUSTOM",
-		cta = "Make your move!",
 		image = "data:image/png;base64," .. get_image(),
-		text = me.name .. " just made a move!",
+		cta = cta,
+		text = text,
 		data = context.game,
 		strategy = "IMMEDIATE",
 		notification = "PUSH",
-		template = "move",
+		template = template,
 	})
+
 	fbinstant.update(payload, function(self, success)
 		log("Sending match_data message")
-		fbinstant.quit()
+		if not context.game.winner and not context.game.draw then
+			fbinstant.quit()
+		end
 	end)
 end
 
@@ -125,25 +141,24 @@ end
 local function fbinstant_login(callback)
 	fbinstant.initialize(function(self, success)
 		if not success then
-			log("ERROR! Unable to initialize FBInstant")
-			callback(false)
+			callback(false, "ERROR! Unable to initialize FBInstant")
 			return
 		end
 
 		fbinstant.start_game(function(self, success)
 			if not success then
-				log("ERROR! Unable to start game")
-				callback(false)
+				callback(false, "ERROR! Unable to start game")
 				return
 			end
+			callback(true)
 		end)
-		callback(true)
 	end)
 end
 
 function M.login(callback)
-	fbinstant_login(function(ok)
+	fbinstant_login(function(ok, message)
 		if not ok then
+			log(message)
 			callback(false)
 			return
 		end
@@ -160,6 +175,7 @@ function M.login(callback)
 		-- when a game is finished (instead of waiting for the next match).
 		xoxo.on_leave_match(function()
 			log("xoxo.on_leave_match")
+			fbinstant.quit()
 		end)
 
 		-- Called by the game when the player is trying to make a move.
@@ -168,20 +184,25 @@ function M.login(callback)
 			send_player_move(row, col)
 		end)
 
-		timer.delay(1, true, function()
-			send_match_data()
-		end)
 
-
+		-- get the current context we're in
+		-- if the context is THREAD it means we are in a messenger conversation
+		-- in this case we handle the context and flag to the game that we are
+		-- reconnecting (into an existing or new game with an opponent)
+		-- if we are in another kind of context we flag to the game that we are
+		-- connected and proceed to let the player chose an opponent
 		local context_id, context_type = fbinstant.get_context()
-		if not context_id or context_type == fbinstant.CONTEXT_SOLO then
-			xoxo.connected()
-			callback(true)
-		else
-			handle_context(context_id, context_type, function(ok)
-				xoxo.reconnected()
-				callback(ok)
+		if context_id and context_type == fbinstant.CONTEXT_THREAD then
+			handle_context(context_id, context_type, function()
+				timer.delay(1, true, function()
+					send_match_data()
+				end)
+				xoxo.show_game()
+				callback(true)
 			end)
+		else			
+			xoxo.show_menu()
+			callback(true)
 		end
 	end)
 end

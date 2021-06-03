@@ -3,6 +3,12 @@
     "custom_update_templates": {
       "move": {
         "example": "X made a move!"
+      },
+      "draw": {
+        "example": "The game was a draw!"
+      },
+      "win": {
+        "example": "X won the game!"
       }
     },
     "orientation": "PORTRAIT",
