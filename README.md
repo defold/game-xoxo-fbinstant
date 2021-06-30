@@ -16,7 +16,7 @@ The game starts by calling `fbinstant.initialize()` and `fbinstant.start_game()`
 https://github.com/defold/game-xoxo-fbinstant/blob/master/game/xoxo_fbinstant.lua#L141-L156
 
 ### Step 2: Get the context
-Next step is to checks what context we're in, using `fbinstant.get_context()`. If we're in a THREAD context it's a messenger conversation with a person which means we're also ready to play a game. If we're in some other context we need to find a friend to play with.
+Next step is to check what context we're in, using `fbinstant.get_context()`. If we're in a THREAD context it's a messenger conversation with a person which means we're also ready to play a game. If we're in some other context we need to find a friend to play with.
 
 https://github.com/defold/game-xoxo-fbinstant/blob/master/game/xoxo_fbinstant.lua#L207
 
